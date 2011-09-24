@@ -1,0 +1,74 @@
+name: Link Roller
+id: LinkRoller
+key: LinkRoller
+version: 2.6.2
+description: At its heart, a powerful link manager
+#author_name: Mike Thomsen, derived from Link Roller 2.6 by Arvind Satyanarayan
+#author_link: http://github.com/mikert
+schema_version: 2.3008
+l10n_class: LinkRoller::L10N
+
+object_types:
+    asset.link: MT::Asset::Links
+    link:       MT::Asset::Links
+permissions:
+    blog.manage_links:
+        label: Manage Links
+        group: blog_upload
+        order: 301
+applications:
+    cms:
+        menus:
+            asset:link:
+                label: Create Link
+                order: 201
+                mode: quickadd_link
+                dialog: 1
+                view: 
+                    - blog
+                    - website
+                permission: manage_links
+        methods:
+            quickadd_link:     $LinkRoller::LinkRoller::App::CMS::quickadd_link
+            save_link:         $LinkRoller::LinkRoller::App::CMS::save_link
+        tags:
+            block:
+                Links:            $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_links
+                LinkIfTagged?:    $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_if_tagged
+                LinkTags:         $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_tags
+                LinkIsFirstInRow: $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_is_first_in_row
+                LinkIsLastInRow:  $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_is_last_in_row
+                LinksHeader:      $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_header
+                LinksFooter:      $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_footer
+            function:
+                LinkID:           $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_id
+                LinkName:         $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_name
+                LinkURL:          $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_url
+                LinkDescription:  $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_link_description
+                LinkAuthor:       $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_author
+                LinkRel:          $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_rel
+                LinkTarget:       $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_target
+                LinkXFN:          $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_xfn
+                LinkDateAdded:    $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_date_added
+                LinkModifiedDate: $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_date_modified
+                LinkAddedBy:      $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_added_by
+        callbacks:
+            MT::App::CMS::template_source.edit_asset:   $LinkRoller::LinkRoller::App::CMS::edit_asset_src
+            MT::App::CMS::template_param.edit_asset:    $LinkRoller::LinkRoller::App::CMS::edit_asset_param
+            MT::App::CMS::template_source.asset_table:  $LinkRoller::LinkRoller::App::CMS::asset_table_src 
+#            MT::App::CMS::template_param.asset_options: \&_asset_options_param
+        import_formats:
+            import_opml:
+                label: Import OPML
+                type: LinkRoller::Import
+                handler: LinkRoller::Import::import_contents
+                options_param: LinkRoller::Import::get_param
+#list_properties:
+#  asset:
+#    author:
+#      auto: 1
+#    xfn:
+#      auto: 1
+#      label: xfn
+#      order: 900
+#      display: option

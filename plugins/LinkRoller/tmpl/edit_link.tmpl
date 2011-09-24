@@ -1,641 +1,401 @@
 <mt:if name="id">
-	<mt:setvar name="page_title" value="<__trans phrase="Edit Link">">
+    <mt:setvar name="page_title" value="<__trans_section component="LinkRoller"><__trans phrase="Edit Link"></__trans_section>">
 <mt:else>
-	<mt:setvar name="page_title" value="<__trans phrase="New Link">">
+    <mt:setvar name="page_title" value="<__trans_section component="LinkRoller"><__trans phrase="New Link"></__trans_section>">
 </mt:if>
-<mt:setvarblock name="html_head" append="1">
-	<style type="text/css" media="screen">
-		.actions-bar-top { margin-bottom: 10px; }
-	</style>
-</mt:setvarblock>
-<mt:setvar name="screen_id" value="edit-asset">
-<mt:setvar name="screen_class" value="edit-asset">
-
-<mt:setvarblock name="js_include" append="1">
-	<script type="text/javascript" src="<mt:var name="static_uri">js/tc/focus.js"></script>
-    <script type="text/javascript" src="<mt:var name="static_uri">js/tc/tagcomplete.js"></script>
-	<script type="text/javascript" src="<$mt:var name="static_uri"$>js/tc/client.js"></script>
-	<script type="text/javascript">
-	<!--
-		var customizable_fields = new Array('hidden', 'link_author', 'description', 'tags', 'target', 'xfn');
-		var custom_fields = new Array();
-		<mt:if name="disp_prefs_show_hidden">custom_fields.push('hidden');</mt:if>
-		<mt:if name="disp_prefs_show_link_author">custom_fields.push('link_author');</mt:if>
-		<mt:if name="disp_prefs_show_description">custom_fields.push('description');</mt:if>
-		<mt:if name="disp_prefs_show_tags">custom_fields.push('tags');</mt:if>
-		<mt:if name="disp_prefs_show_target">custom_fields.push('target');</mt:if>
-		<mt:if name="disp_prefs_show_xfn">custom_fields.push('xfn');</mt:if>
-		
-		function setCustomFields() {
-		    var i = 0;
-
-		    // empty the custom fields array
-		    custom_fields = new Array();
-
-		    // we loop over all customizable fields here (which includes
-		    // all the metadata fields). we want to hide the metadata (or
-		    // other fieldset, if we grow another customizable fieldset)
-		    // from view if all fields within it are hidden. alternatively,
-		    // if the user enables a field, the fieldset should be enabled.
-
-		    var fieldsets = DOM.getElementsByTagAndAttribute(document, "fieldset", "mt:fields");
-		    var fs_state = {};
-		    var fs_map = {};
-		    for (var i = 0; i < fieldsets.length; i++) {
-		        var fieldset = fieldsets[i];
-		        var idents = fieldset.getAttribute("mt:fields");
-		        if (idents) {
-		            fs_state[fieldset.id] = 'hidden';
-		            var identlist = idents.split(/\s+/);
-		            if (identlist && identlist.length) {
-		                for (var j = 0; j < identlist.length; j++)
-		                    fs_map[identlist[j]] = fieldset;
-		            }
-		        }
-		    }
-
-		    // add only the fields which are currently checked and enabled
-		    for (i = 0; i < customizable_fields.length; i++) {
-		        var hide = true;
-		        var field_object = TC.elementOrId("custom-prefs-"+customizable_fields[i]);
-
-		        if (field_object && field_object.checked && !field_object.disabled) {
-		            custom_fields.push(customizable_fields[i]);
-		            hide = false;
-		        }
-		        var div = TC.elementOrId(customizable_fields[i] + '-field');
-		        if (div) {
-		            var fieldset = fs_map[customizable_fields[i]];
-
-		            if (hide) {
-		                TC.addClassName(div, 'hidden');
-		            } else {
-		                if (fieldset) fs_state[fieldset.id] = null;
-		                TC.removeClassName(div, 'hidden');
-		            }
-		        }
-		    }
-
-		    for (var i = 0; i < fieldsets.length; i++) {
-		        var state = fs_state[fieldsets[i].id];
-		        if (state == 'hidden')
-		            TC.addClassName(fieldsets[i], "hidden");
-		        else
-		            TC.removeClassName(fieldsets[i], "hidden");
-		    }
-
-		    var entry_prefs = getByID('entry_prefs');
-		    entry_prefs.value = 'Custom';
-
-		    return false;
-		}
-		
-		function savedEntryOptions(c) {
-		    showMsg('<__trans phrase="Your link screen preferences have been saved." escape="js">', 'saved-prefs-msg', 'success');
-		}
-
-		function saveEntryFieldOptions() {
-		    var frm = document.forms['display-options-form'];
-		    var entry_prefs = getByID('entry_prefs');
-		    var mode;
-		    mode = entry_prefs.value;
-
-		    var custom_prefs = '';
-		    var bar_position;
-		    for (var i = 0; i < frm.elements.length; i++) {
-		        var fld = frm.elements[i];
-		        if (fld.name == 'bar_position') {
-		            if (fld.checked) bar_position = fld.value;
-		        } else if (fld.name == 'entry_prefs') {
-		            mode = fld.value;
-		        } else if (fld.name == 'custom_prefs') {
-		            if (!fld.disabled && fld.checked)
-		                custom_prefs += '&custom_prefs=' + fld.value;
-		        }
-		    }
-		    // TBD: we need to get the blog id from the selector control
-		    // itself
-		    var param = '__mode=save_link_prefs'
-		        + '&_type=<mt:var name="object_type">'
-		        + '&blog_id=<mt:var name="blog_id">'
-		        + '&entry_prefs=' + mode
-		        + '&magic_token=<mt:var name="magic_token">'
-		        + '&bar_position=' + bar_position;
-		    if (mode == 'Custom') {
-		        param += custom_prefs;
-		    }
-		    var params = { uri: '<mt:var name="script_url">', method: 'POST', arguments: param, load: savedEntryOptions };
-		    TC.Client.call(params);
-		}
-	
-		function changeTarget(s) {
-			if (s.options[s.selectedIndex].value == 'other') {
-				getByID('other_target_input').style.display = 'block'; 
-				getByID('other_target_input').focus(); 
-				s.style.display='none'; 
-				s.disabled = true;
-			}
-		}
-		
-		function meChecked() {
-		  var eMe = document.getElementById('me');
-		  return eMe.checked;
-		}
-
-		function checkXFN() {
-			var isMe = meChecked(); //document.getElementById('me').checked;
-			var div = document.getElementById('xfn-generator');
-			var inputColl = div.getElementsByTagName('input');
-			var results = document.getElementById('rel');
-			var linkText, linkUrl, inputs = '';
-			//linkText = document.getElementById('linkText').value;
-			//linkUrl = document.getElementById('linkUrl').value;
-			for (i = 0; i < inputColl.length; i++) {
-				if(inputColl[i].id == 'rel' || inputColl[i].id == 'me')
-				continue;
-				inputColl[i].disabled = isMe;
-				inputColl[i].parentNode.className = isMe ? 'disabled' : '';
-				if (!isMe && inputColl[i].checked && inputColl[i].value != '') {
-					inputs += inputColl[i].value + ' ';		
-				}
-			}
-			inputs = inputs.substr(0,inputs.length - 1);
-			if (isMe) inputs='me';
-			results.value = inputs;
-		}
-		
-		function initXFN() {
-			var div = document.getElementById('xfn-generator');
-			var aInputs = div.getElementsByTagName('input');
-	
-			for (var i = 0; i < aInputs.length; i++) {		
-				 aInputs[i].onclick = aInputs[i].onkeyup = checkXFN;
-			}
-			checkXFN();
-		}
-		
-		var tag_delim = '<mt:var name="auth_pref_tag_delim">';
-		
-		// array of tag names
-		var tagList;
-		// raw structure of tags (hash of tag -> count)
-		var tags;
-		
-		<mt:if name="tags_js">
-		tags = <$mt:var name="tags_js"$>;
-		</mt:if>
-		
-		RegExp.escape = (function() {
-		  var specials = [
-		    '/', '.', '*', '+', '?', '|',
-		    '(', ')', '[', ']', '{', '}', '\\'
-		  ];
-
-		  sRE = new RegExp(
-		    '(\\' + specials.join('|\\') + ')', 'g'
-		  );
-
-		  return function(text) {
-		    return text.replace(sRE, '\\$1');
-		  }
-		})();
-
-		function tagSplit(str) {
-		    var delim = RegExp.escape(tag_delim);
-		    var delim_scan = new RegExp('^((([\'"])(.*?)\\3[^' + delim + ']*?|.*?)(' + delim + '\\s*|$))', '');
-		    str = str.replace(/(^\s+|\s+$)/g, '');
-		    var tags = [];
-		    while (str.length && str.match(delim_scan)) {
-		        str = str.substr(RegExp.$1.length);
-		        var tag = RegExp.$4 ? RegExp.$4 : RegExp.$2;
-		        tag = tag.replace(/(^\s+|\s+$)/g, '');
-		        tag = tag.replace(/\s+/g, ' ');
-		        if (tag != '') tags.push(tag);
-		    }
-		    return tags;
-		}
-		
-		<mt:if name="defer_tag_load">
-		function deferredTagLoad() {
-		    /* http://del.icio.us/feeds/json/tags/username */
-		    TC.Client.call({
-		        'load': tagsLoaded,
-		        'method': 'POST',
-		        'uri': '<$mt:var name="mt_url"$>',
-		        'arguments': { '__mode': 'js_tag_list',
-		            'blog_id': '<$mt:var name="blog_id"$>',
-		            'magic_token': '<$mt:var name="magic_token"$>'}
-		    });
-		}
-
-		function tagsLoaded(c, result) {
-		    try {
-		        var x = eval('(' + result + ')');
-		        if (x.error) {
-		            // suppress error. tag completion isn't critical
-		            return;
-		        }
-		        tags = x.result.tags;
-		    } catch (e) {
-		    }
-		    initTags();
-		}
-		</mt:if>
-
-		var tagPos = 0;
-		function initTags() {
-		    /* browsers don't want to cache the tags field, so we use a hidden input field to cache them */
-		    var t = getByID('tags-cache');
-		    if ( t ) {
-		        log('tag cache:'+t.value);
-		        var v = getByID('tags');
-		        if ( t.value )
-		            v.value = t.value;
-		        DOM.addEventListener( v, "change", function() { log('caching tags'); t.value = v.value; } );
-		    }
-		    if (!tags || tags.length == 0) return;
-
-		    tagList = [];
-		    for (var tag in tags)
-		        if ( tags.hasOwnProperty( tag ) )
-		            tagList.push( tag );
-		    autoTag = new TC.TagComplete("tags", tagList);
-		    autoTag.delimiter = tag_delim;
-		}
-		
-		function init() {
-		    // setup
-		    <mt:if name="defer_tag_load">window.setTimeout("deferredTagLoad()", 500);<mt:else>
-		    <mt:if name="tags_js">initTags();</mt:if></mt:if>
-			initXFN();
-		}
-		
-		TC.attachLoadEvent( init );
-	//-->
-	</script>
-	<link rel="stylesheet" href="<mt:var name="static_uri">plugins/LinkRoller/styles-linkroller.css" type="text/css" media="screen" title="LinkRoller Stylesheet" charset="utf-8" />
-</mt:setvarblock>
-
-<mt:setvarblock name="content_header">
-	
-	<div id="msg-block">
-	    <mt:if name="saved">
-	        <mtapp:statusmsg
-	            id="saved"
-	            class="success">
-	            <__trans phrase="Your changes have been saved.">
-	        </mtapp:statusmsg>
-	    </mt:if>
-
-	    <mt:if name="saved_prefs">
-	        <mtapp:statusmsg    
-	            id="saved-prefs"
-	            class="success">
-	            <__trans phrase="Your customization preferences have been saved, and are visible in the form below.">
-	        </mtapp:statusmsg>
-	    </mt:if>
-
-	    <mt:if name="saved_deleted">
-	        <mtapp:statusmsg
-	            id="saved-deleted"
-	            class="success">
-	            <__trans phrase="The selected link(s) has been deleted from the database.">
-	        </mtapp:statusmsg>
-	    </mt:if>
-
-		<mtapp:statusmsg
-		 id="blank-fields"
-		 class="error hidden">
-			<__trans phrase="Please ensure all required fields (highlighted) have been filled in.">
-		</mtapp:statusmsg>
-	</div>
-</mt:setvarblock>
-
-<mt:setvarblock name="html_body_footer">
-	<$mt:setvar name="show_display_options_link" value="1"$>
-    <mtapp:widget
-        id="display-options-widget"
-        class="display-options-widget autolayout-flyout-smart hidden"
-        label="<__trans phrase="Display Options">">
-
-        <form name="display-options-form" method="post" action="<mt:var name="script_url">">
-            <input type="hidden" id="entry_prefs" name="entry_prefs" value="<mt:if name="disp_prefs_default">Default<mt:else>Custom</mt:if>">
-                <mtapp:setting
-                    id="entry_fields"
-                    label="<__trans phrase="Fields">"
-                    label_class="display-options">
-                    <ul>
-                        <li><label><input type="checkbox" name="custom_prefs" id="custom-prefs-name" value="name" checked="checked" disabled="disabled" class="cb" /> <__trans phrase="Name"></label></li>
-                        <li><label><input type="checkbox" name="custom_prefs" id="custom-prefs-url" value="url" checked="checked" disabled="disabled" class="cb" /> <__trans phrase="URL"></label></li>
-						<li><label><input type="checkbox" name="custom_prefs" id="custom-prefs-description" value="description" onclick="setCustomFields(); return true"<mt:if name="disp_prefs_show_description"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Description"></label></li>
-                        <li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-tags" value="tags" <mt:if name="disp_prefs_show_tags"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Tags"></label></li>
-	
-						<li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-link_author" value="link_author" <mt:if name="disp_prefs_show_link_author"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Content Author"></label></li>
-							
-						<li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-target" value="target" <mt:if name="disp_prefs_show_target"> checked="checked"</mt:if> class="cb" /> <__trans phrase="Target"></label></li>
-							
-						<li><label><input type="checkbox" onclick="setCustomFields(); return true;" name="custom_prefs" id="custom-prefs-xfn" value="xfn" <mt:if name="disp_prefs_show_xfn"> checked="checked"</mt:if> class="cb" /> <__trans phrase="XFN Relationship"></label></li>
-                    </ul>
-                </mtapp:setting>
-                <mtapp:setting
-                    id="action_bars"
-                    label="<__trans phrase="Actions">"
-                    label_class="display-options">
-                    <ul class="action-button-options">
-                        <li><label><input type="radio" name="bar_position" id="bar_position_top" value="Top"<mt:unless name="position_actions_both"><mt:if name="position_actions_top"> checked="checked"</mt:if></mt:unless> onclick="setBarPosition(this)" class="rb" /> <__trans phrase="Top"></label></li>
-                        <li><label><input type="radio" name="bar_position" id="bar_position_both" value="Both"<mt:if name="position_actions_both"> checked="checked"</mt:if> onclick="setBarPosition(this)" class="rb" /> <__trans phrase="Both"></label></li>
-                        <li><label><input type="radio" name="bar_position" id="bar_position_bottom" value="Bottom"<mt:unless name="position_actions_both"><mt:if name="position_actions_bottom"> checked="checked"</mt:if></mt:unless> onclick="setBarPosition(this)" class="rb" /> <__trans phrase="Bottom"></label></li>
-                    </ul>
-                </mtapp:setting>
-	            <div class="actions-bar display-options-actions-bar buttons">
-	                <div class="actions-bar-inner">
-	                    <a href="javascript:void(0)"
-	                        onclick="saveEntryFieldOptions();"
-	                        mt:command="close-flyout"
-	                        title="<__trans phrase="Save display options">"
-	                        ><__trans phrase="OK"></a>
-	                    <a href="javascript:void(0)"
-	                        mt:command="close-flyout"
-	                        title="<__trans phrase="Close display options">"
-	                        ><__trans phrase="Cancel"></a>
-	                </div>
-	            </div>
-        </form>
-    </mtapp:widget>
-</mt:setvarblock>
-
 <mt:setvar name="position_actions_bottom" value="1">
-<mt:setvarblock name="action_buttons">
-    <button
-        type="submit"
-        accesskey="s"
-        title="<__trans phrase="Save changes to this [lc,_1] (s)" params="<mt:var name="object_label">">"
-        class="primary-button"
-        ><__trans phrase="Save Changes"></button>
-</mt:setvarblock>
-<mt:setvarblock name="object_nav">
-    <ul class="object-nav"> 
-        <li id="previous-link"><mt:if name="previous_entry_id"><a href="<$mt:var name="script_url"$>?__mode=view&amp;_type=<$mt:var name="object_type" lower_case="1"$>&amp;id=<$mt:var name="previous_entry_id"$>&amp;blog_id=<$mt:var name="blog_id"$>"><__trans phrase="Previous"></a><mt:else><span><__trans phrase="Previous"></span></mt:if></li>
-        <li id="manage-link"><a href="<$mt:var name="script_url"$>?__mode=list_<$mt:var name="object_type" lower_case="1"$>&amp;blog_id=<$mt:var name="blog_id"$>"><__trans phrase="Manage Assets" params="<$mt:var name="object_label_plural"$>"></a></li>
-        <li id="next-link"><mt:if name="next_entry_id"><a href="<$mt:var name="script_url"$>?__mode=view&amp;_type=<$mt:var name="object_type" lower_case="1"$>&amp;id=<$mt:var name="next_entry_id"$>&amp;blog_id=<$mt:var name="blog_id"$>"><__trans phrase="Next"></a><mt:else><span><__trans phrase="Next"></span></mt:if></li> 
-    </ul>
+<mt:setvar name="edit_screen" value="1">
+
+<mt:setvarblock name="system_msg">
+<mt:if name="error">
+  <mtapp:statusmsg
+     id="generic-error"
+     class="error"
+     can_close="0">
+    <mt:var name="error">
+  </mtapp:statusmsg>
+</mt:if>
+<mt:if name="saved">
+  <mt:if name="can_rebuild">
+  <mtapp:statusmsg
+     id="saved"
+     class="success"
+     rebuild="all"
+     can_close="0">
+    <__trans phrase="Your changes have been saved.">
+  </mtapp:statusmsg>
+  <mt:else>
+  <mtapp:statusmsg
+     id="saved"
+     class="success">
+    <__trans phrase="Your changes have been saved.">
+  </mtapp:statusmsg>
+  </mt:if>
+</mt:if>
 </mt:setvarblock>
 
 <mt:setvarblock name="related_content">
-	<mtapp:widget
-        id="asset-stats-widget"
-        class="stats-widget"
-        label="<__trans phrase="Stats">">
-        <ul class="object-stats">
-            <li><__trans phrase="[_1] - Created by [_2]" params="<$mt:date ts="$created_on_ts" relative="1" _default="$created_on_formatted"$>%%<$mt:var name="created_by" escape="html"$>"></li>
-        <mt:if name="modified_by">
-            <li><__trans phrase="[_1] - Modified by [_2]" params="<$mt:date ts="$modified_on_ts" relative="1" _default="$modified_on_formatted"$>%%<$mt:var name="modified_by" escape="html"$>"></li>
-        </mt:if>
-		</ul>
-   </mtapp:widget>	
+<mtapp:widget
+   id="asset-stats-widget"
+   class="stats-widget"
+   label="<__trans phrase="Stats">">
+  <ul class="object-stats">
+    <li><__trans phrase="[_1] - Created by [_2]" params="<$mt:date ts="$created_on_ts" relative="1" _default="$created_on_formatted" format="%b %e %Y"$>%%<$mt:var name="created_by" escape="html" escape="html"$>"></li>
+  <mt:if name="modified_by">
+    <li><__trans phrase="[_1] - Modified by [_2]" params="<$mt:date ts="$modified_on_ts" relative="1" _default="$modified_on_formatted" format="%b %e %Y"$>%%<$mt:var name="modified_by" escape="html" escape="html"$>"></li>
+  </mt:if>
+  </ul>
+</mtapp:widget>
 
-	<mtapp:widget
-		id="asset-preview-widget"
-		class="stats-widget"
-		label="<__trans phrase="Link Preview">">
-		
-		<div align="center">
+<mt:if name="show_appears_in_widget">
+<mtapp:widget
+   id="appears-in"
+   label="<__trans phrase="Appears in...">">
+  <ul>
+  <mt:loop name="appears_in">
+    <li><a href="<mt:var name="script_url">?__mode=view&amp;_type=<mt:var name="class">&amp;blog_id=<mt:var name="blog_id" escape="url">&amp;id=<mt:var name="id" escape="url">" class="icon-left icon-<mt:var name="class" lower_case="1">"><mt:var name="title" escape="html" default="..."></a></li>
+  </mt:loop>
+  </ul>
+  <mt:if name="appears_in_uneditables">
+    <span class="hint"><__trans phrase="This asset has been used by other users."></span>
+  </mt:if>
+</mtapp:widget>
+</mt:if>
 
-			<div class="asset-preview">
-				<a href="<mt:var name="url">"><img alt="Powered by Snap Shots(tm)" title="Powered by Snap Shots(tm)" src="http://shots.snap.com/preview/?url=<mt:var name="url">" /></a>
-				
-				<span class="hint">Powered by <a href="http://www.snap.com/snapshots.php">Snap Shots&trade;</a></span>
-			</div>
-			
-
-			<p><a href="<mt:var name="url">"><__trans phrase="View Link"></a></p>
-		</div>	
-	</mtapp:widget>
-	
-	<mtapp:widget
-        id="appears-in"
-        label="<__trans phrase="Appears in...">">
-        <mt:if name="appears_in">
-            <mt:loop name="appears_in">
-                <mt:if name="__first__">
-        <ul>
-                </mt:if>
-            <li><a href="<mt:var name="script_url">?__mode=edit&amp;_type=<mt:var name="class">&amp;blog_id=<mt:var name="blog_id">&amp;id=<mt:var name="id">" title="<__trans phrase="Published on [_1]" params="<mt:var name="created_on_formatted">">" class="icon-left icon-<mt:var name="class" lower_case="1">"><mt:var name="title"></a></li>
-                <mt:if name="__last__">
-        </ul>
-                </mt:if>
-            </mt:loop>
+<mt:if name="related">
+  <mtapp:widget
+     id="related-assets"
+     label="<__trans phrase="Related Assets">">
+  <mt:loop name="related">
+    <div class="asset asset-type-<mt:var name="asset_type" escape="html" lower_case="1">">
+      <div class="asset-thumb thumbnail picture small<mt:if name="file_is_missing"> asset-type-icon missing</mt:if><mt:unless name="has_thumbnail"> asset-type-icon</mt:unless>">
+        <a href="<$mt:var name="script_url"$>?__mode=view&amp;_type=<mt:var name="object_type">&amp;id=<$mt:var name="id" escape="url"$>&amp;blog_id=<$mt:var name="blog_id" escape="url"$>" title="<$mt:var name="file_name" escape="html"$>">
+        <mt:if name="has_thumbnail">
+          <mt:unless name="file_is_missing"> 
+          <img src="<mt:var name="thumbnail_url" escape="html">?ts=<mt:var name="modified_on" escape="url">" width="<mt:var name="thumbnail_width" escape="html">" height="<mt:var name="thumbnail_height" escape="html">"<mt:if name="thumbnail_width"> style="padding: <$mt:var name="thumbnail_height_offset"$>px <$mt:var name="thumbnail_width_offset"$>px"</mt:if> />
+          <mt:else>
+          <img src="<mt:var name="static_uri">images/asset/<mt:var name="asset_type" escape="html" lower_case="1">-warning-45.png" class="asset-type-icon asset-type-<mt:var name="asset_type" escape="html" lower_case="1"> missing" />
+          </mt:unless>
         <mt:else>
-            <span class="hint"><__trans phrase="This asset has not been used."></span>
+          <img src="<mt:var name="static_uri">images/asset/<mt:var name="asset_type" escape="html" lower_case="1">-45.png" class="asset-type-icon asset-type-<mt:var name="asset_type" escape="html" lower_case="1">" />
         </mt:if>
-    </mtapp:widget>
-    <mt:if name="related">
-        <mtapp:widget
-            id="related-assets"
-            label="<__trans phrase="Related Assets">">
-            <ul>
-            <mt:loop name="related">
-                <li class="asset pkg">
-                    <div class="asset-preview">
-                        <a href="<$mt:var name="script_url"$>?__mode=view&amp;_type=<mt:var name="object_type">&amp;id=<$mt:var name="id"$>&amp;blog_id=<$mt:var name="blog_id"$>" title="<$mt:var name="file_name"$>"><img src="<mt:var name="thumbnail_url" escape="html">?ts=<mt:var name="modified_on" escape="url">" width="<mt:var name="thumbnail_width" escape="html">" height="<mt:var name="thumbnail_height" escape="html">" /></a>
-                    </div>
-                    <div class="asset-metadata">
-                        <h3 class="asset-label"><a href="<$mt:var name="script_url"$>?__mode=view&amp;_type=<mt:var name="object_type">&amp;id=<$mt:var name="id"$>&amp;blog_id=<$mt:var name="blog_id"$>" title="<$mt:var name="file_name"$>"><mt:var name="label"></a></h3>
-                        <div class="asset-size">
-                            <mt:var name="created_on_formatted"><br />
-                            <mt:if name="class" eq="image"><mt:var name="image_width" escape="html"> &times; <mt:var name="image_height" escape="html">px</mt:if><br />
-                            <mt:var name="file_size_formatted" escape="html">
-                            <!-- <mt:if var="is_parent">(parent)</mt:if><mt:if var="is_child">(child)</mt:if><mt:if var="is_sibling">(sibling)</mt:if> -->
-                        </div>
-                    </div>
-                </li>
-            </mt:loop>
-            </ul>
-        </mtapp:widget>
-    </mt:if>
-
+        </a>
+      </div>
+      <div class="asset-metadata">
+        <ul class="metadata">
+          <li class="metadata-item asset-label"><a href="<$mt:var name="script_url"$>?__mode=view&amp;_type=<mt:var name="object_type">&amp;id=<$mt:var name="id" escape="url"$>&amp;blog_id=<$mt:var name="blog_id"$>" title="<$mt:var name="file_name" escape="html"$>"><mt:var name="label" escape="html"></a></li>
+          <li class="metadata-item asset-size"><mt:if name="class" eq="image"><mt:var name="image_width" escape="html"> &times; <mt:var name="image_height" escape="html"> - </mt:if><mt:var name="file_size_formatted" escape="html"></li>
+          <li class="metadata-item datetime"><mt:var name="created_on_formatted"></li>
+          <!-- <mt:if var="is_parent">(parent)</mt:if><mt:if var="is_child">(child)</mt:if><mt:if var="is_sibling">(sibling)</mt:if> -->
+        </ul>
+      </div>
+    </div>
+  </mt:loop>
+  </mtapp:widget>
+</mt:if>
+  <mtApp:PageActions>
 </mt:setvarblock>
+
+<mt:setvarblock name="object_nav">
+<ul class="object-nav">
+  <li id="previous-link"><mt:if name="previous_entry_id"><a href="<mt:var name="script_url">?__mode=view&amp;_type=asset&amp;id=<mt:var name="previous_entry_id" escape="url">&amp;blog_id=<mt:var name="blog_id" escape="url">">&lsaquo; <__trans phrase="Prev"></a><mt:else><span>&lsaquo; <__trans phrase="Prev"></span></mt:if></li>
+  <li id="next-link"><mt:if name="next_entry_id"><a href="<mt:var name="script_url">?__mode=view&amp;_type=asset&amp;id=<mt:var name="next_entry_id" escape="url">&amp;blog_id=<mt:var name="blog_id" escape="url">"><__trans phrase="Next"> &rsaquo;</a><mt:else><span><__trans phrase="Next"> &rsaquo;</span></mt:if></li>
+</ul>
+</mt:setvarblock>
+
+<mt:setvarblock name="html_head" append="1">
+<script type="text/javascript" src="<mt:var name="static_uri">js/tc/focus.js"></script>
+<script type="text/javascript" src="<mt:var name="static_uri">js/tc/tagcomplete.js"></script>
+<script type="text/javascript" src="<mt:var name="static_uri">js/tc/client.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+
+function changeTarget(s) {
+    if (s.options[s.selectedIndex].value == 'other') {
+        getByID('other_target_input').style.display = 'block'; 
+        getByID('other_target_input').focus(); 
+        s.style.display='none'; 
+        s.disabled = true;
+    }
+}
+
+function meChecked() {
+    var eMe = document.getElementById('me');
+    return eMe.checked;
+}
+
+function checkXFN() {
+    var isMe = meChecked(); //document.getElementById('me').checked;
+    var div = document.getElementById('xfn-generator');
+    var inputColl = div.getElementsByTagName('input');
+    var results = document.getElementById('rel');
+    var linkText, linkUrl, inputs = '';
+    //linkText = document.getElementById('linkText').value;
+    //linkUrl = document.getElementById('linkUrl').value;
+    for (i = 0; i < inputColl.length; i++) {
+        if(inputColl[i].id == 'rel' || inputColl[i].id == 'me')
+        continue;
+        inputColl[i].disabled = isMe;
+        inputColl[i].parentNode.className = isMe ? 'disabled' : '';
+        if (!isMe && inputColl[i].checked && inputColl[i].value != '') {
+            inputs += inputColl[i].value + ' ';        
+        }
+    }
+    inputs = inputs.substr(0,inputs.length - 1);
+    if (isMe) inputs='me';
+    results.value = inputs;
+}
+
+function initXFN() {
+    var div = document.getElementById('xfn-generator');
+    var aInputs = div.getElementsByTagName('input');
+
+    for (var i = 0; i < aInputs.length; i++) {
+        aInputs[i].onclick = aInputs[i].onkeyup = checkXFN;
+    }
+    checkXFN();
+}
+
+var tag_delim = '<mt:var name="auth_pref_tag_delim">';
+
+// array of tag names
+var tagList;
+
+function tagSplit(str) {
+    var delim = RegExp.escape(tag_delim);
+    var delim_scan = new RegExp('^((([\'"])(.*?)\\3[^' + delim + ']*?|.*?)(' + delim + '\\s*|$))', '');
+    str = str.replace(/(^\s+|\s+$)/g, '');
+    var tags = [];
+    while (str.length && str.match(delim_scan)) {
+        str = str.substr(RegExp.$1.length);
+        var tag = RegExp.$4 ? RegExp.$4 : RegExp.$2;
+        tag = tag.replace(/(^\s+|\s+$)/g, '');
+        tag = tag.replace(/\s+/g, ' ');
+        if (tag != '') tags.push(tag);
+    }
+    return tags;
+}
+
+var autoTag;
+<mt:if name="tags_js">
+tagList = <mt:var name="tags_js">;
+</mt:if>
+
+function init()
+{
+    <mt:if name="tags_js">initTags();</mt:if>
+}
+
+var tagPos = 0;
+function initTags() {
+    var t = getByID('tags-cache');
+    if ( t ) {
+        log('tag cache:'+t.value);
+        var v = getByID('tags');
+        if ( t.value )
+            v.value = t.value;
+        DOM.addEventListener( v, "change", function() { log('caching tags'); t.value = v.value; } );
+    }
+    if (!tagList || tagList.length == 0) return;
+
+    autoTag = new TC.TagComplete("tags", tagList);
+    autoTag.delimiter = tag_delim;
+}
+
+TC.attachLoadEvent( init );
+/* ]]> */
+</script>
+</mt:setvarblock>
+
 <mt:include name="include/header.tmpl">
-	
-	<form name="save_link" action="<mt:var name="script_url">" method="post">
-		<input type="hidden" name="__mode" value="save_link" id="__mode" />
-		<mt:if name="id"><input type="hidden" name="id" value="<mt:var name="id">" id="id" /></mt:if>
-		<input type="hidden" name="blog_id" value="<mt:var name="blog_id">" id="blog_id" />
-		<input type="hidden" name="return_args" value="<mt:var name="return_args" escape="html">" id="return_args" />
-		<input type="hidden" name="magic_token" value="<mt:var name="magic_token" escape="html">" id="magic_token" />
 
-	<mt:include name="include/actions_bar.tmpl" hide_pager="1" settings_bar="1">
-			
-	<mtapp:settinggroup id="vitals">
-		<mtapp:setting
-		 id="label"
-		 label="<__trans phrase="Name">"
-		 required="1">
-			<div class="textarea-wrapper">
-				<input type="text" name="label" value="<mt:var name="label" escape="html">" id="label" class="full-width" />
-			</div>
-		</mtapp:setting>
-		
-		<mtapp:setting
-		 id="url"
-		 label="<__trans phrase="URL">"
-		 required="1">
-			<div class="textarea-wrapper">
-				<input type="text" name="url" value="<mt:var name="url" escape="html" default="http://">" id="url" class="full-width" />
-			</div>			
-		</mtapp:setting>
-		
-		<mtapp:setting
-		 id="link_author"
-		 shown="$disp_prefs_show_link_author"
-		 label="<__trans phrase="Author(s)">"
-		 hint="<__trans phrase="Who created the content being linked here?">"
-		 show_hint="1">
-			<div class="textarea-wrapper">
-				<input type="text" name="link_author" value="<mt:var name="link_author" escape="html">" id="link_author" class="full-width" />
-			</div>			
-		</mtapp:setting>
-		
-		<mtapp:setting
-		 id="description"
-		 shown="$disp_prefs_show_description"
-		 label="<__trans phrase="Description">">
-			<textarea name="description" id="description" class="full-width" rows="5"><mt:var name="description" escape="html"></textarea>
-		</mtapp:setting>
-		
-	</mtapp:settinggroup>
-	
-	<mt:setvarblock name="show_metadata"><mt:var name="disp_prefs_show_tags"><mt:var name="disp_prefs_show_target"><mt:var name="disp_prefs_show_xfn"></mtsetvarblock>
-	
-	<fieldset id="link-metadata-settings" mt:fields="tags target xfn" class="pkg<mt:unless name="show_metadata"> hidden</mt:unless>">
-		<h3><__trans phrase="Metadata"></h3>
-		
-	    <mtapp:setting
-	     id="tags"
-	     shown="$disp_prefs_show_tags"
-	     label="<__trans phrase="Tags">"
-	     help_page="entries"
-	     help_section="entry_tags">
-	        <div class="textarea-wrapper">
-	            <input name="tags" id="tags" class="full-width" tabindex="5" value="<$mt:var name="tags" escape="html"$>" mt:watch-change="1" autocomplete="off" />
-	            <input type="hidden" name="_ignore_tags" id="tags-cache" value="<$mt:var name="tags" escape="html"$>" />
-	        </div>
-	        <!-- FIXME - move this styling to the ie hacks css file -->
-	        <!--[if lte IE 6.5]><div style="position:relative;"><![endif]-->
-	        <div id="tags_completion"></div>
-	        <!--[if lte IE 6.5]></div><![endif]-->
-	    </mtapp:setting>
-		
-		<mtapp:setting
-		 id="target"
-		 shown="$disp_prefs_show_target"
-		 label="<__trans phrase="Target">"		 
-		 hint="<__trans phrase="The name of a frame where this link should open">"
-		 show_hint="1">
-			<select name="target" id="target" class="quarter-width" onchange="changeTarget(this);">
-				<option value=""><__trans phrase="Select"></option>
-				<mt:loop name="targets">
-					<option<mt:if name="target_name" eq="$target"> selected="selected"</mt:if>><mt:var name="target_name"></option>
-				</mt:loop>
-				<option value="other"><__trans phrase="Custom"></option>
-			</select>
-			
-			<input type="text" name="target" value="<mt:var name="target" escape="html">" id="other_target_input" class="quarter-width" style="display: none;" />
-		</mtapp:setting>
-		
-		<mtapp:setting
-		 id="xfn"
-		 shown="$disp_prefs_show_xfn"
-		 label="<__trans phrase="XFN Relationship">">
-			<div class="textarea-wrapper">
-				<input type="text" name="rel" id="rel" size="50" value="<mt:var name="rel">" class="full-width" readonly="readonly" />
-			</div>
+<div id="asset" class="status-<mt:if name="file_is_missing">missing<mt:else>publish</mt:if><mt:unless name="file_is_missing"> <mt:if name="has_thumbnail">asset-thumbnail<mt:else>asset-no-thumbnail</mt:if></mt:unless>">
+  <form id="edit_asset" method="post" action="<mt:var name="script_url">">
+    <input type="hidden" name="blog_id" value="<mt:var name="blog_id">" />
+    <input type="hidden" name="__mode" value="save" />
+    <input type="hidden" name="_type" value="<mt:var name="object_type">" />
+    <input type="hidden" name="id" value="<mt:var name="id" escape="html">" />
+    <input type="hidden" name="return_args" value="<mt:var name="return_args" escape="html">" />
+    <input type="hidden" name="magic_token" value="<mt:var name="magic_token">" />
+    <input type="hidden" name="asset_type" value="<mt:var name="asset_type" escape="html">" />
 
-			<div id="xfn-generator">
-				<p><span class="xfn-label"><__trans phrase="identity"></span> <span class="xfn-properties"><label><input class="xfn" type="checkbox" name="identity" value="me" id="me" <mt:if name="rel" like="me">checked="checked"</mt:if>  /> <__trans phrase="another web address of mine"></label></span></p>
-				
-				<p>
-					<span class="xfn-label"><__trans phrase="friendship"></span> 
-				
-					<span class="xfn-properties">	
-					
-						<label><input class="xfn" type="radio" name="friendship" value="acquaintance" id="acquaintance" <mt:if name="rel" like="acquaintance">checked="checked"</mt:if> />  <__trans phrase="acquaintance"></label>
-						
-	                	<label><input class="xfn" type="radio" name="friendship" value="contact" id="contact" <mt:if name="rel" like="contact">checked="checked"</mt:if>  /> <__trans phrase="contact"></label>
-	
-	                	<label><input class="xfn" type="radio" name="friendship" value="friend" id="friend" <mt:if name="rel" like="friend">checked="checked"</mt:if> /> <__trans phrase="friend"></label>
-	
-	                	<label><input name="friendship" type="radio" class="xfn" value="" id="friendship" /> <__trans phrase="none"></label></span>
-				</p>
-			
-				<p>
-					<span class="xfn-label"><__trans phrase="physical"></span>
-				
-					<span class="xfn-properties">
-						<label><input class="xfn" type="checkbox" name="physical" value="met" id="met" <mt:if name="rel" like="met">checked="checked"</mt:if> /> <__trans phrase="met"></label>
-					</span>
-				</p>
-			
-				<p>
-					<span class="xfn-label"><__trans phrase="professional"></span>
-				
-					<span class="xfn-properties">
-						<label><input class="xfn" type="checkbox" name="professional" value="co-worker" id="co-worker" <mt:if name="rel" like="co-worker">checked="checked"</mt:if>  /> <__trans phrase="co-worker"></label>
+    <div class="asset-preview asset-type-<mt:var name="asset_type" escape="html" lower_case="1"> line">
 
-		                <label><input class="xfn" type="checkbox" name="professional" value="colleague" id="colleague" <mt:if name="rel" like="colleague">checked="checked"</mt:if>  /> <__trans phrase="colleague"></label>					
-					</span>				
-				</p>
-			
-				<p>
-					<span class="xfn-label"><__trans phrase="geographical"></span>
-				
-					<span class="xfn-properties">
-				        <label><input class="xfn" type="radio" name="geographical" value="co-resident" id="co-resident" <mt:if name="rel" like="co-resident">checked="checked"</mt:if>  /> <__trans phrase="co-resident"></label>
-				
-		                <label><input class="xfn" type="radio" name="geographical" value="neighbor" id="neighbor" <mt:if name="rel" like="neighbor">checked="checked"</mt:if>  /> <__trans phrase="neighbor"></label>
-		
-		                <label><input class="xfn" type="radio" name="geographical" value="" id="geographical" /> <__trans phrase="none"></label>
-					</span>
-				</p>
-			
-				<p>
-					<span class="xfn-label"><__trans phrase="family"></span>
-				
-					<span class="xfn-properties">
-						<label><input class="xfn" type="radio" name="family" value="child" id="child" <mt:if name="rel" like="child">checked="checked"</mt:if>  /> <__trans phrase="child"></label>
-						
-		                <label><input class="xfn" type="radio" name="family" value="kin" id="kin" <mt:if name="rel" like="kin">checked="checked"</mt:if>  /> <__trans phrase="kin"></label>
-		
-		                <label><input class="xfn" type="radio" name="family" value="parent" id="parent" <mt:if name="rel" like="parent">checked="checked"</mt:if> /> <__trans phrase="parent"></label>
-		
-		                <label><input class="xfn" type="radio" name="family" value="sibling" id="sibling" <mt:if name="rel" like="sibling">checked="checked"</mt:if> /> <__trans phrase="sibling"></label>
-		
-		                <label><input class="xfn" type="radio" name="family" value="spouse" id="spouse" <mt:if name="rel" like="spouse">checked="checked"</mt:if> /> <__trans phrase="spouse"></label>
+      <div class="asset-preview-thumb picture small">
+        <div class="thumbnail">
+          <img src="http://shots.snap.com/preview/?url=<mt:var name="url">" alt="Powered by Snap Shots(tm)" title="Powered by Snap Shots(tm)" />
+        </div>
+        <div class="hint">Powered by <a href="http://www.snap.com/snapshots.php">Snap Shots&trade;</a></div>
+      </div>
+    <div class="asset-metadata">
+      <ul class="metadata">
+        <li class="metadata-item asset-type"><strong><__trans phrase="Type">:</strong><mt:var name="asset_class_label" escape="html"></li>
+      </ul>
+    </div>
+    </div>
 
-		                <label><input class="xfn" type="radio" name="family" value="" id="family"  />  <__trans phrase="none"></label>
-					</span>
-				</p>
-			
-				<p>
-					<span class="xfn-label"><__trans phrase="romantic"></span>
-				
-					<span class="xfn-properties">
-						<label><input class="xfn" type="checkbox" name="romantic" value="muse" id="muse" <mt:if name="rel" like="muse">checked="checked"</mt:if> /> <__trans phrase="muse"></label>
-						
-		                <label><input class="xfn" type="checkbox" name="romantic" value="crush" id="crush" <mt:if name="rel" like="crush">checked="checked"</mt:if> /> <__trans phrase="crush"></label>
-		
-		                <label><input class="xfn" type="checkbox" name="romantic" value="date" id="date" <mt:if name="rel" like="date">checked="checked"</mt:if> /> <__trans phrase="date"></label>
-		
-		                <label><input class="xfn" type="checkbox" name="romantic" value="sweetheart" id="romantic" <mt:if name="rel" like="sweetheart">checked="checked"</mt:if> /> <__trans phrase="sweetheart"></label>
-					</span>
-				</p>
-			</div>
-		</mtapp:setting>
-		
-	</fieldset>
-	
-	<mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1" settings_bar="1">	
-		
-	</form>
-	
+    <div class="asset-info">
+      <mtapp:setting
+         id="label"
+         label="<__trans phrase="Label">"
+         label_class="top-label"
+         help_page="assets"
+         help_section="asset_label">
+        <input type="text" name="label" id="label" class="text full" value="<mt:var name="label" escape="html">" />
+      </mtapp:setting>
+
+      <mtapp:setting
+         id="link_author"
+         label="<__trans phrase="Author(s)">"
+         label_class="top-label"
+         hint="<__trans phrase="Who created the content being linked here?">"
+         show_hint="1">
+        <div class="textarea-wrapper">
+          <input type="text" name="link_author" value="<mt:var name="link_author" escape="html">" id="link_author" class="full-width" />
+        </div>
+      </mtapp:setting>
+
+      <mtapp:setting
+         id="description"
+         label="<__trans phrase="Description">"
+         label_class="top-label">
+        <textarea name="description" id="description" class="text full low"><mt:var name="description" escape="html"></textarea>
+      </mtapp:setting>
+
+      <mtapp:setting
+         id="tags"
+         label_class="text-top"
+         label="<__trans phrase="Tags">"
+         label_class="top-label">
+        <input type="text" name="tags" id="tags" class="text full" value="<$mt:var name="tags" escape="html"$>" />
+        <input type="hidden" name="_ignore_tags" id="tags-cache" value="<$mt:var name="tags" escape="html"$>" />
+        <div id="tags-suggestion">
+          <div id="tags_completion"></div>
+        </div>
+      </mtapp:setting>
+
+      <mtapp:setting
+         id="asset-url"
+         label_class="top-label"
+         label="<__trans phrase="URL">">
+        <input type="text" readonly="readonly" name="asset-url" id="asset-url" class="text" style="width:80%;" value="<mt:var name="url" escape="html">" />
+        <a href="<mt:var name="url" escape="html">"><__trans phrase="View"></a>
+      </mtapp:setting>
+
+      <mtapp:setting
+         id="target"
+         label="<__trans_section component="LinkRoller"><__trans phrase="Link Target"></__trans_section>"
+         label_class="top-label"
+         hint="<__trans_section component="LinkRoller"><__trans phrase="The name of a frame where this link should open"></__trans_section>"
+         show_hint="1">
+        <select name="target" id="target" class="quarter-width" onchange="changeTarget(this);">
+          <option value=""><__trans phrase="Select"></option>
+          <mt:loop name="targets">
+            <option<mt:if name="target_name" eq="$target"> selected="selected"</mt:if>><mt:var name="target_name"></option>
+          </mt:loop>
+          <option value="other"><__trans phrase="Custom"></option>
+        </select>
+        <input type="text" name="target" value="<mt:var name="target" escape="html">" id="other_target_input" class="quarter-width" style="display: none;" />
+      </mtapp:setting>
+
+    </div>
+
+<__trans_section component="LinkRoller">
+    <div id="xfn_relation"<mt:unless name="show_xfn">style="display:none;"</mt:unless>>
+      <mtapp:setting
+         id="xfn"
+         label="<__trans phrase="XFN Relationship">"
+         label_class="top-label">
+        <div class="textarea-wrapper" style="margin:1em 0 1em 0.3em;">
+          <input type="text" name="rel" id="rel" size="50" value="<mt:var name="rel">" class="full-width" readonly="readonly" />
+        </div>
+        <div id="xfn-generator">
+          <p>
+            <span class="xfn-label"><__trans phrase="identity"></span>
+            <span class="xfn-properties"><label><input class="xfn" type="checkbox" name="identity" value="me" id="me"<mt:if name="rel" like="me"> checked="checked"</mt:if>  /> <__trans phrase="another web address of mine"></label></span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="friendship"></span>
+            <span class="xfn-properties">
+              <label><input class="xfn" type="radio" name="friendship" value="acquaintance" id="acquaintance"<mt:if name="rel" like="acquaintance"> checked="checked"</mt:if> />  <__trans phrase="acquaintance"></label>
+              <label><input class="xfn" type="radio" name="friendship" value="contact" id="contact"<mt:if name="rel" like="contact"> checked="checked"</mt:if>  /> <__trans phrase="contact"></label>
+              <label><input class="xfn" type="radio" name="friendship" value="friend" id="friend"<mt:if name="rel" like="friend"> checked="checked"</mt:if> /> <__trans phrase="friend"></label>
+              <label><input name="friendship" type="radio" class="xfn" value="" id="friendship" /> <__trans phrase="none"></label>
+            </span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="physical"></span>
+            <span class="xfn-properties">
+              <label><input class="xfn" type="checkbox" name="physical" value="met" id="met" <mt:if name="rel" like="met">checked="checked"</mt:if> /> <__trans phrase="met"></label>
+            </span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="professional"></span>
+            <span class="xfn-properties">
+              <label><input class="xfn" type="checkbox" name="professional" value="co-worker" id="co-worker" <mt:if name="rel" like="co-worker">checked="checked"</mt:if>  /> <__trans phrase="co-worker"></label>
+              <label><input class="xfn" type="checkbox" name="professional" value="colleague" id="colleague" <mt:if name="rel" like="colleague">checked="checked"</mt:if>  /> <__trans phrase="colleague"></label>
+            </span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="geographical"></span>
+            <span class="xfn-properties">
+              <label><input class="xfn" type="radio" name="geographical" value="co-resident" id="co-resident" <mt:if name="rel" like="co-resident">checked="checked"</mt:if>  /> <__trans phrase="co-resident"></label>
+              <label><input class="xfn" type="radio" name="geographical" value="neighbor" id="neighbor" <mt:if name="rel" like="neighbor">checked="checked"</mt:if>  /> <__trans phrase="neighbor"></label>
+              <label><input class="xfn" type="radio" name="geographical" value="" id="geographical" /> <__trans phrase="none"></label>
+            </span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="family"></span>
+            <span class="xfn-properties">
+              <label><input class="xfn" type="radio" name="family" value="child" id="child"<mt:if name="rel" like="child"> checked="checked"</mt:if>  /> <__trans phrase="child"></label>
+              <label><input class="xfn" type="radio" name="family" value="kin" id="kin"<mt:if name="rel" like="kin"> checked="checked"</mt:if>  /> <__trans phrase="kin"></label>
+              <label><input class="xfn" type="radio" name="family" value="parent" id="parent"<mt:if name="rel" like="parent"> checked="checked"</mt:if> /> <__trans phrase="parent"></label>
+              <label><input class="xfn" type="radio" name="family" value="sibling" id="sibling"<mt:if name="rel" like="sibling"> checked="checked"</mt:if> /> <__trans phrase="sibling"></label>
+              <label><input class="xfn" type="radio" name="family" value="spouse" id="spouse"<mt:if name="rel" like="spouse"> checked="checked"</mt:if> /> <__trans phrase="spouse"></label>
+              <label><input class="xfn" type="radio" name="family" value="" id="family"  />  <__trans phrase="none"></label>
+            </span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="romantic"></span>
+            <span class="xfn-properties">
+              <label><input class="xfn" type="checkbox" name="romantic" value="muse" id="muse" <mt:if name="rel" like="muse">checked="checked"</mt:if> /> <__trans phrase="muse"></label>
+              <label><input class="xfn" type="checkbox" name="romantic" value="crush" id="crush" <mt:if name="rel" like="crush">checked="checked"</mt:if> /> <__trans phrase="crush"></label>
+              <label><input class="xfn" type="checkbox" name="romantic" value="date" id="date" <mt:if name="rel" like="date">checked="checked"</mt:if> /> <__trans phrase="date"></label>
+              <label><input class="xfn" type="checkbox" name="romantic" value="sweetheart" id="romantic" <mt:if name="rel" like="sweetheart">checked="checked"</mt:if> /> <__trans phrase="sweetheart"></label>
+            </span>
+          </p>
+        </div>
+      </mtapp:setting>
+    </div>
+</__trans_section>
+
+    <mt:setvarblock name="action_buttons">
+      <button
+         type="submit"
+         accesskey="s"
+         title="<__trans phrase="Save changes to this asset (s)">"
+         class="save action primary button">
+        <__trans phrase="Save Changes">
+      </button>
+    </mt:setvarblock>
+    <mt:include name="include/actions_bar.tmpl" bar_position="bottom" hide_pager="1">
+  </form>
+</div>
+
+<mt:setvarblock name="jq_js_include" append="1">
+    jQuery('#edit_asset').validate({
+        rules: {
+            label: 'required'
+        },
+        messages: {
+            label: '<__trans phrase="You must specify a name for the asset." escape="singlequotes">'
+        },
+        errorClass: "msg-error",
+        errorPlacement: function(error, element) {
+            element.parents('div.field').addClass('error-field');
+            error.removeAttr('generated').insertAfter(element);
+        }
+    });
+</mt:setvarblock>
+
 <mt:include name="include/footer.tmpl">

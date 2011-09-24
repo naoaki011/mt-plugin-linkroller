@@ -1,4 +1,4 @@
-<mt:setvarblock name="page_title"><__trans phrase="New Link"></mt:setvarblock>
+<mt:setvarblock name="page_title"><__trans phrase="Create Link"></mt:setvarblock>
 <mt:setvarblock name="return_args">__mode=view&_type=asset&blog_id=<mt:var name="blog_id"></mt:setvarblock>
 <mt:include name="dialog/header.tmpl">
 	<form name="save_link" action="<mt:var name="script_url">" method="post" target="_top">
@@ -25,14 +25,14 @@
 			        <button
 			            type="submit"
 			            accesskey="s"
-			            title="<__trans phrase="Save">"
-			            class="primary-button"
-			            ><__trans phrase="Save"></button>
+			            title="<__trans phrase="Import">"
+			            class="primary-button primary button action"
+			            ><__trans phrase="Import"></button>
 			        <button
-			            onclick="closeDialog(); return false"
 			            type="submit"
 			            accesskey="x"
 			            title="<__trans phrase="Cancel (x)">"
+			            class="cancel button action mt-close-dialog"
 			            ><__trans phrase="Cancel"></button>
 			    </div>
 			</div>
