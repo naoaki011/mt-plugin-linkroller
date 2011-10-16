@@ -4,12 +4,11 @@
 package LinkRoller::Import;
 use strict;
 
-use base qw(MT::ErrorHandler);
+use base qw( MT::ErrorHandler );
 
 sub get_param {
     my $class = shift;
     my ($blog_id) = @_;
-
     my $param = { blog_id => $blog_id };
     $param;
 }
