@@ -34,14 +34,13 @@ sub has_thumbnail { 0; }
 sub as_html {
     my $asset   = shift;
     my ($param) = @_;
-    my $text = sprintf(
-        '<a href="%s" title="%s" target="%s" rel="%s">%s</a>',
-        encode_html( $asset->url ),
-        encode_html( $asset->description ),
-        encode_html( $asset->link_target ),
-        encode_html( $asset->xfn_rel ),
-        encode_html( $asset->label )
-    );
+    my $target = $asset->link_target || '';
+    my $relation = $asset->xfn_rel || '';
+    my $text = '<a href="' . encode_html( $asset->url ) . '"'
+             . ' title="'. ( $asset->description || $asset->label ) . '"';
+    $text .= ' target="' . $target . '"' if $target;
+    $text .= ' rel="' . $relation . '"' if $relation;
+    $text .= '>' . $asset->label . '</a>';
 	return $asset->enclose($text);
 }
 
