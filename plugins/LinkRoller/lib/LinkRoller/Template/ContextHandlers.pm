@@ -66,6 +66,10 @@ sub _hdlr_last_update {
 	_hdlr_link_property('update', @_);
 }
 
+sub _hdlr_feed {
+	_hdlr_link_property('primary_feed', @_);
+}
+
 sub _hdlr_link_property {
 	my $property = shift;
 	my ($ctx, $args) = @_;

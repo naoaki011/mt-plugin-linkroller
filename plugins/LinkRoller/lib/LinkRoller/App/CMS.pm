@@ -20,6 +20,7 @@ sub edit_asset_param {
     $param->{link_target}        = ($link->link_target || '');
     $param->{xfn_rel}            = ($link->xfn_rel || '');
     $param->{last_modified}      = ($link->last_modified || '');
+    $param->{primary_feed}       = ($link->primary_feed || '');
     $param->{hidden}             = ($link->hidden || 0);
     push @{$param->{targets}}, { target_name => $_ }
         foreach qw( _self _blank _parent _top );

@@ -284,6 +284,13 @@ TC.attachLoadEvent( init );
       </mtapp:setting>
 
       <mtapp:setting
+         id="primary_feed"
+         label_class="top-label"
+         label="<__trans phrase="Feed">">
+        <input type="text" name="primary_feed" id="primary_feed" readonly="readonly" class="text" style="width:80%;" value="<mt:var name="primary_feed" escape="html">" />
+      </mtapp:setting>
+
+      <mtapp:setting
          id="link_target"
          label="<__trans_section component="LinkRoller"><__trans phrase="Link Target"></__trans_section>"
          label_class="top-label"
@@ -359,10 +366,10 @@ TC.attachLoadEvent( init );
           <p>
             <span class="xfn-label"><__trans phrase="romantic"></span>
             <span class="xfn-properties">
-              <label><input class="xfn" type="checkbox" name="romantic" value="muse" id="muse" <mt:if name="xfn_rel" like="muse">checked="checked"</mt:if> /> <__trans phrase="muse"></label>
-              <label><input class="xfn" type="checkbox" name="romantic" value="crush" id="crush" <mt:if name="xfn_rel" like="crush">checked="checked"</mt:if> /> <__trans phrase="crush"></label>
-              <label><input class="xfn" type="checkbox" name="romantic" value="date" id="date" <mt:if name="xfn_rel" like="date">checked="checked"</mt:if> /> <__trans phrase="date"></label>
-              <label><input class="xfn" type="checkbox" name="romantic" value="sweetheart" id="romantic" <mt:if name="xfn_rel" like="sweetheart">checked="checked"</mt:if> /> <__trans phrase="sweetheart"></label>
+              <label><input class="xfn" type="checkbox" name="romantic" value="muse" id="muse"<mt:if name="xfn_rel" like="muse"> checked="checked"</mt:if> /> <__trans phrase="muse"></label>
+              <label><input class="xfn" type="checkbox" name="romantic" value="crush" id="crush"<mt:if name="xfn_rel" like="crush"> checked="checked"</mt:if> /> <__trans phrase="crush"></label>
+              <label><input class="xfn" type="checkbox" name="romantic" value="date" id="date"<mt:if name="xfn_rel" like="date"> checked="checked"</mt:if> /> <__trans phrase="date"></label>
+              <label><input class="xfn" type="checkbox" name="romantic" value="sweetheart" id="romantic"<mt:if name="xfn_rel" like="sweetheart"> checked="checked"</mt:if> /> <__trans phrase="sweetheart"></label>
             </span>
           </p>
         </div>

@@ -62,7 +62,7 @@ sub start_import {
     }
 
 	foreach my $item (@$items) {
-		my $url = $item->{html} || $item->{xml};
+        my $url = $item->{html};
 		next unless $url;
 		
 		my $link = $class->new;
@@ -72,6 +72,7 @@ sub start_import {
 			created_by => $param{ImportAs}->id,
 			label => $item->{text},
 			description => $item->{desc},
+            primary_feed => $item->{xml},
 			url => $url
 		});
 		$link->save or die $link->errstr;		

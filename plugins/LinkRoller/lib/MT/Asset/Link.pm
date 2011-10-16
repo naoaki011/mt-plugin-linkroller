@@ -14,6 +14,7 @@ __PACKAGE__->install_properties(
             'link_target'   => 'string meta',
             'xfn_rel'       => 'string meta',
             'link_author' => 'string meta',
+            'primary_feed'  => 'string meta',
             'last_modified' => 'string meta',
             'hidden'        => 'string meta',
         },
@@ -66,6 +67,12 @@ sub last_modified {
     my $asset = shift;
     my $last_modified = $asset->meta( 'last_modified', @_ );
     return $last_modified if $last_modified || @_;
+}
+
+sub primary_feed {
+    my $asset = shift;
+    my $primary_feed = $asset->meta( 'primary_feed', @_ );
+    return $primary_feed if $primary_feed || @_;
 }
 
 sub hidden {

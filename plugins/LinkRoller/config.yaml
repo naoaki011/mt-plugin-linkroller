@@ -64,3 +64,4 @@ tags:
     LinkRollRel:          $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_rel
     LinkRollXFN:          $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_rel
     LinkRollLastUpdate:   $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_last_update
+    LinkRollFeed:         $LinkRoller::LinkRoller::Template::ContextHandlers::_hdlr_feed
