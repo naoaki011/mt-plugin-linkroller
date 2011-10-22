@@ -61,10 +61,16 @@ sub start_import {
         return $self->error($e);
     }
 
+    my $plugin = MT->component( 'LinkRoller' );
 	foreach my $item (@$items) {
         my $url = $item->{html};
 		next unless $url;
 		
+        my $ua = MT->new_ua;
+        my $req = HTTP::Request->new('GET', $url);
+        my $result = $ua->request( $req );
+        my $http_status = $result->code || 0;
+        if (($http_status == 200) || ($http_status == 302) || ($http_status == 304)) {
 		my $link = $class->new;
 		$link->set_values({
 			class => 'link',
@@ -75,7 +81,13 @@ sub start_import {
             primary_feed => $item->{xml},
 			url => $url
 		});
-		$link->save or die $link->errstr;		
+            $link->save
+              or die $link->errstr;
+            print $plugin->translate( "Imported '[_1]'\n", $link->label );
+        }
+        else {
+            print $item->{text} . ' is resulted ' . $result->message . ".\n";
+        }
 	}
     1;
 }
@@ -115,15 +127,15 @@ sub _get_items {
             }
         }
         if ( $use_item ) {
-            ( $item->{text} ) = ( $content =~ m|text="([^"]*)"| );
-            ( $item->{text} ) = ( $content =~ m|title="([^"]*)"| ) unless $item->{text};
-            ( $item->{desc} ) = ( $content =~ m|description="([^"]*)"| );
+            ( $item->{text} ) = ( $content =~ m|text="([^"]+)"| );
+            ( $item->{text} ) = ( $content =~ m|title="([^"]+)"| ) unless $item->{text};
+            ( $item->{desc} ) = ( $content =~ m|description="([^"]+)"| );
             ( $item->{desc} ) =~ s|>|>|g if ( $item->{desc} );
             ( $item->{desc} ) =~ s|<|<|g if ( $item->{desc} );
             ( $item->{desc} ) =~ s|"|"|g if ( $item->{desc} );
-            ( $item->{html} ) = ( $content =~ m|htmlUrl="(http://[^\s]*)[\s]?"| );
-            ( $item->{html} ) = ( $content =~ m|url="(http://[^\s]*)[\s]?"| ) unless $item->{html};
-            ( $item->{xml} ) = ( $content =~ m|xmlUrl="(http://[^\s]*)[\s]?"| );
+            ( $item->{html} ) = ( $content =~ m|htmlUrl="(https?://[^"]+)"| );
+            ( $item->{html} ) = ( $content =~ m|url="(https?://[^"]+)"| ) unless $item->{html};
+            ( $item->{xml} )  = ( $content =~ m|xmlUrl="(https?://[^"]+)"| );
             push ( @items, $item );
         }
     }

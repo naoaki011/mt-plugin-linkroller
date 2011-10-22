@@ -5,7 +5,6 @@
 </mt:if>
 <mt:setvar name="position_actions_bottom" value="1">
 <mt:setvar name="edit_screen" value="1">
-
 <mt:setvarblock name="system_msg">
 <mt:if name="error">
   <mtapp:statusmsg
@@ -125,12 +124,10 @@ function meChecked() {
 
 function checkXFN() {
     var isMe = meChecked(); //document.getElementById('me').checked;
-    var div = document.getElementById('xfn-generator');
-    var inputColl = div.getElementsByTagName('input');
+    var xfndiv = document.getElementById('xfn-generator');
+    var inputColl = xfndiv.getElementsByTagName('input');
     var results = document.getElementById('xfn_rel');
-    var linkText, linkUrl, inputs = '';
-    //linkText = document.getElementById('linkText').value;
-    //linkUrl = document.getElementById('linkUrl').value;
+    var inputs = '';
     for (i = 0; i < inputColl.length; i++) {
         if(inputColl[i].id == 'xfn_rel' || inputColl[i].id == 'me')
         continue;
@@ -146,8 +143,8 @@ function checkXFN() {
 }
 
 function initXFN() {
-    var div = document.getElementById('xfn-generator');
-    var aInputs = div.getElementsByTagName('input');
+    var xfndiv = document.getElementById('xfn-generator');
+    var aInputs = xfndiv.getElementsByTagName('input');
 
     for (var i = 0; i < aInputs.length; i++) {
         aInputs[i].onclick = aInputs[i].onkeyup = checkXFN;
@@ -183,6 +180,7 @@ tagList = <mt:var name="tags_js">;
 function init()
 {
     <mt:if name="tags_js">initTags();</mt:if>
+    initXFN();
 }
 
 var tagPos = 0;
@@ -204,6 +202,13 @@ function initTags() {
 TC.attachLoadEvent( init );
 /* ]]> */
 </script>
+<style type="text/css">
+#xfn_rel-field { margin-top: 1em; }
+#xfn-generator { margin-left: 1em; }
+#xfn-generator p { margin-bottom: 0.5em; }
+.xfn-label { margin-right: 1em; }
+#xfn-generator input { margin-right: 0.3em; }
+</style>
 </mt:setvarblock>
 
 <mt:include name="include/header.tmpl">
@@ -232,18 +237,6 @@ TC.attachLoadEvent( init );
         <li class="metadata-item asset-type"><strong><__trans phrase="Type">:</strong><mt:var name="asset_class_label" escape="html"></li>
           <li class="metadata-item asset-update"><strong><__trans phrase="LastUpdate">:</strong><mt:var name="last_modified" escape="html"></li>
       </ul>
-    </div>
-    </div>
-
-    <div class="asset-info">
-      <mtapp:setting
-         id="label"
-         label="<__trans phrase="Label">"
-         label_class="top-label"
-         help_page="assets"
-         help_section="asset_label">
-        <input type="text" name="label" id="label" class="text full" value="<mt:var name="label" escape="html">" />
-      </mtapp:setting>
 
       <mtapp:setting
          id="link_author"
@@ -254,6 +247,95 @@ TC.attachLoadEvent( init );
         <div class="textarea-wrapper">
           <input type="text" name="link_author" value="<mt:var name="link_author" escape="html">" id="link_author" class="full-width" />
         </div>
+      </mtapp:setting>
+
+      <mtapp:setting
+         id="primary_feed"
+         label_class="top-label"
+         label="<__trans phrase="Feed">">
+          <input type="text" name="primary_feed" id="primary_feed" readonly="readonly" class="mt-edit-field text" style="width:80%;" value="<mt:var name="primary_feed" escape="html">" />
+      </mtapp:setting>
+
+<__trans_section component="LinkRoller">
+        <div id="xfn_relation"<mt:unless name="show_xfn"> style="display:none;"</mt:unless>>
+      <mtapp:setting
+         id="xfn_rel"
+         label="<__trans phrase="XFN Relationship">"
+         label_class="top-label">
+        <div class="textarea-wrapper" style="margin:1em 0 1em 0.3em;">
+          <input type="text" name="xfn_rel" id="xfn_rel" size="50" value="<mt:var name="xfn_rel">" class="full-width" readonly="readonly" />
+        </div>
+        <div id="xfn-generator">
+          <p>
+            <span class="xfn-label"><__trans phrase="identity"></span>
+                <span class="xfn-properties"><label><input class="xfn" type="checkbox" name="identity" value="me" id="me"<mt:if name="xfn_rel" like="me"> checked="checked"</mt:if>  /><__trans phrase="another web address of mine"></label></span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="friendship"></span>
+            <span class="xfn-properties">
+                  <label><input class="xfn" type="radio" name="friendship" value="acquaintance" id="acquaintance"<mt:if name="xfn_rel" like="acquaintance"> checked="checked"</mt:if> /><__trans phrase="acquaintance"></label>
+                  <label><input class="xfn" type="radio" name="friendship" value="contact" id="contact"<mt:if name="xfn_rel" like="contact"> checked="checked"</mt:if>  /><__trans phrase="contact"></label>
+                  <label><input class="xfn" type="radio" name="friendship" value="friend" id="friend"<mt:if name="xfn_rel" like="friend"> checked="checked"</mt:if> /><__trans phrase="friend"></label>
+                  <label><input name="friendship" type="radio" class="xfn" value="" id="friendship" /><__trans phrase="none"></label>
+            </span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="physical"></span>
+            <span class="xfn-properties">
+                  <label><input class="xfn" type="checkbox" name="physical" value="met" id="met" <mt:if name="xfn_rel" like="met">checked="checked"</mt:if> /><__trans phrase="met"></label>
+            </span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="professional"></span>
+            <span class="xfn-properties">
+                  <label><input class="xfn" type="checkbox" name="professional" value="co-worker" id="co-worker" <mt:if name="xfn_rel" like="co-worker">checked="checked"</mt:if>  /><__trans phrase="co-worker"></label>
+                  <label><input class="xfn" type="checkbox" name="professional" value="colleague" id="colleague" <mt:if name="xfn_rel" like="colleague">checked="checked"</mt:if>  /><__trans phrase="colleague"></label>
+            </span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="geographical"></span>
+            <span class="xfn-properties">
+                  <label><input class="xfn" type="radio" name="geographical" value="co-resident" id="co-resident" <mt:if name="xfn_rel" like="co-resident">checked="checked"</mt:if>  /><__trans phrase="co-resident"></label>
+                  <label><input class="xfn" type="radio" name="geographical" value="neighbor" id="neighbor" <mt:if name="xfn_rel" like="neighbor">checked="checked"</mt:if>  /><__trans phrase="neighbor"></label>
+                  <label><input class="xfn" type="radio" name="geographical" value="" id="geographical" /><__trans phrase="none"></label>
+            </span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="family"></span>
+            <span class="xfn-properties">
+                  <label><input class="xfn" type="radio" name="family" value="child" id="child"<mt:if name="xfn_rel" like="child"> checked="checked"</mt:if>  /><__trans phrase="child"></label>
+                  <label><input class="xfn" type="radio" name="family" value="kin" id="kin"<mt:if name="xfn_rel" like="kin"> checked="checked"</mt:if>  /><__trans phrase="kin"></label>
+                  <label><input class="xfn" type="radio" name="family" value="parent" id="parent"<mt:if name="xfn_rel" like="parent"> checked="checked"</mt:if> /><__trans phrase="parent"></label>
+                  <label><input class="xfn" type="radio" name="family" value="sibling" id="sibling"<mt:if name="xfn_rel" like="sibling"> checked="checked"</mt:if> /><__trans phrase="sibling"></label>
+                  <label><input class="xfn" type="radio" name="family" value="spouse" id="spouse"<mt:if name="xfn_rel" like="spouse"> checked="checked"</mt:if> /><__trans phrase="spouse"></label>
+                  <label><input class="xfn" type="radio" name="family" value="" id="family"  /><__trans phrase="none"></label>
+            </span>
+          </p>
+          <p>
+            <span class="xfn-label"><__trans phrase="romantic"></span>
+            <span class="xfn-properties">
+                  <label><input class="xfn" type="checkbox" name="romantic" value="muse" id="muse"<mt:if name="xfn_rel" like="muse"> checked="checked"</mt:if> /><__trans phrase="muse"></label>
+                  <label><input class="xfn" type="checkbox" name="romantic" value="crush" id="crush"<mt:if name="xfn_rel" like="crush"> checked="checked"</mt:if> /><__trans phrase="crush"></label>
+                  <label><input class="xfn" type="checkbox" name="romantic" value="date" id="date"<mt:if name="xfn_rel" like="date"> checked="checked"</mt:if> /><__trans phrase="date"></label>
+                  <label><input class="xfn" type="checkbox" name="romantic" value="sweetheart" id="romantic"<mt:if name="xfn_rel" like="sweetheart"> checked="checked"</mt:if> /><__trans phrase="sweetheart"></label>
+            </span>
+          </p>
+        </div>
+      </mtapp:setting>
+    </div>
+</__trans_section>
+
+      </div>
+    </div>
+
+    <div class="asset-info">
+      <mtapp:setting
+         id="label"
+         label="<__trans phrase="Label">"
+         label_class="top-label"
+         help_page="assets"
+         help_section="asset_label">
+        <input type="text" name="label" id="label" class="text full" value="<mt:var name="label" escape="html">" />
       </mtapp:setting>
 
       <mtapp:setting
@@ -279,15 +361,8 @@ TC.attachLoadEvent( init );
          id="url"
          label_class="top-label"
          label="<__trans phrase="URL">">
-        <input type="text" name="url" id="url" class="mt-edit-field" style="width:80%;" value="<mt:var name="url" escape="html">" />
+        <input type="text" name="url" id="url" class="mt-edit-field text" style="width:80%;" value="<mt:var name="url" escape="html">" />
         <a href="<mt:var name="url" escape="html">"><__trans_section component="LinkRoller"><__trans phrase="View Link"></__trans_section></a>
-      </mtapp:setting>
-
-      <mtapp:setting
-         id="primary_feed"
-         label_class="top-label"
-         label="<__trans phrase="Feed">">
-        <input type="text" name="primary_feed" id="primary_feed" readonly="readonly" class="text" style="width:80%;" value="<mt:var name="primary_feed" escape="html">" />
       </mtapp:setting>
 
       <mtapp:setting
@@ -296,86 +371,24 @@ TC.attachLoadEvent( init );
          label_class="top-label"
          hint="<__trans_section component="LinkRoller"><__trans phrase="The name of a frame where this link should open"></__trans_section>"
          show_hint="1">
-        <select name="link_target" id="link_target" class="quarter-width" onchange="changeTarget(this);">
-          <option value=""><__trans phrase="Select"></option>
-          <mt:loop name="targets">
+          <select name="link_target" id="link_target" class="quarter-width" onchange="changeTarget(this);">
+            <option value=""><__trans phrase="Select"></option>
+            <mt:loop name="targets">
             <option<mt:if name="target_name" eq="$link_target"> selected="selected"</mt:if> value="<mt:var name="target_name">"><mt:var name="target_name"></option>
-          </mt:loop>
-          <option value="other"><__trans phrase="Custom"></option>
-        </select>
-        <input type="text" name="link_target" value="<mt:var name="link_target" escape="html">" id="other_target_input" class="quarter-width" style="display: none;" />
+            </mt:loop>
+            <option value="other"><__trans phrase="Custom"></option>
+          </select>
+          <input type="text" name="link_target" value="<mt:var name="link_target" escape="html">" id="other_target_input" class="quarter-width" style="display: none;" />
       </mtapp:setting>
 
-    </div>
-
-<__trans_section component="LinkRoller">
-    <div id="xfn_relation"<mt:unless name="show_xfn">style="display:none;"</mt:unless>>
       <mtapp:setting
-         id="xfn_rel"
-         label="<__trans phrase="XFN Relationship">"
-         label_class="top-label">
-        <div class="textarea-wrapper" style="margin:1em 0 1em 0.3em;">
-          <input type="text" name="xfn_rel" id="xfn_rel" size="50" value="<mt:var name="xfn_rel">" class="full-width" readonly="readonly" />
-        </div>
-        <div id="xfn-generator">
-          <p>
-            <span class="xfn-label"><__trans phrase="identity"></span>
-            <span class="xfn-properties"><label><input class="xfn" type="checkbox" name="identity" value="me" id="me"<mt:if name="xfn_rel" like="me"> checked="checked"</mt:if>  /> <__trans phrase="another web address of mine"></label></span>
-          </p>
-          <p>
-            <span class="xfn-label"><__trans phrase="friendship"></span>
-            <span class="xfn-properties">
-              <label><input class="xfn" type="radio" name="friendship" value="acquaintance" id="acquaintance"<mt:if name="xfn_rel" like="acquaintance"> checked="checked"</mt:if> />  <__trans phrase="acquaintance"></label>
-              <label><input class="xfn" type="radio" name="friendship" value="contact" id="contact"<mt:if name="xfn_rel" like="contact"> checked="checked"</mt:if>  /> <__trans phrase="contact"></label>
-              <label><input class="xfn" type="radio" name="friendship" value="friend" id="friend"<mt:if name="xfn_rel" like="friend"> checked="checked"</mt:if> /> <__trans phrase="friend"></label>
-              <label><input name="friendship" type="radio" class="xfn" value="" id="friendship" /> <__trans phrase="none"></label>
-            </span>
-          </p>
-          <p>
-            <span class="xfn-label"><__trans phrase="physical"></span>
-            <span class="xfn-properties">
-              <label><input class="xfn" type="checkbox" name="physical" value="met" id="met" <mt:if name="xfn_rel" like="met">checked="checked"</mt:if> /> <__trans phrase="met"></label>
-            </span>
-          </p>
-          <p>
-            <span class="xfn-label"><__trans phrase="professional"></span>
-            <span class="xfn-properties">
-              <label><input class="xfn" type="checkbox" name="professional" value="co-worker" id="co-worker" <mt:if name="xfn_rel" like="co-worker">checked="checked"</mt:if>  /> <__trans phrase="co-worker"></label>
-              <label><input class="xfn" type="checkbox" name="professional" value="colleague" id="colleague" <mt:if name="xfn_rel" like="colleague">checked="checked"</mt:if>  /> <__trans phrase="colleague"></label>
-            </span>
-          </p>
-          <p>
-            <span class="xfn-label"><__trans phrase="geographical"></span>
-            <span class="xfn-properties">
-              <label><input class="xfn" type="radio" name="geographical" value="co-resident" id="co-resident" <mt:if name="xfn_rel" like="co-resident">checked="checked"</mt:if>  /> <__trans phrase="co-resident"></label>
-              <label><input class="xfn" type="radio" name="geographical" value="neighbor" id="neighbor" <mt:if name="xfn_rel" like="neighbor">checked="checked"</mt:if>  /> <__trans phrase="neighbor"></label>
-              <label><input class="xfn" type="radio" name="geographical" value="" id="geographical" /> <__trans phrase="none"></label>
-            </span>
-          </p>
-          <p>
-            <span class="xfn-label"><__trans phrase="family"></span>
-            <span class="xfn-properties">
-              <label><input class="xfn" type="radio" name="family" value="child" id="child"<mt:if name="xfn_rel" like="child"> checked="checked"</mt:if>  /> <__trans phrase="child"></label>
-              <label><input class="xfn" type="radio" name="family" value="kin" id="kin"<mt:if name="xfn_rel" like="kin"> checked="checked"</mt:if>  /> <__trans phrase="kin"></label>
-              <label><input class="xfn" type="radio" name="family" value="parent" id="parent"<mt:if name="xfn_rel" like="parent"> checked="checked"</mt:if> /> <__trans phrase="parent"></label>
-              <label><input class="xfn" type="radio" name="family" value="sibling" id="sibling"<mt:if name="xfn_rel" like="sibling"> checked="checked"</mt:if> /> <__trans phrase="sibling"></label>
-              <label><input class="xfn" type="radio" name="family" value="spouse" id="spouse"<mt:if name="xfn_rel" like="spouse"> checked="checked"</mt:if> /> <__trans phrase="spouse"></label>
-              <label><input class="xfn" type="radio" name="family" value="" id="family"  />  <__trans phrase="none"></label>
-            </span>
-          </p>
-          <p>
-            <span class="xfn-label"><__trans phrase="romantic"></span>
-            <span class="xfn-properties">
-              <label><input class="xfn" type="checkbox" name="romantic" value="muse" id="muse"<mt:if name="xfn_rel" like="muse"> checked="checked"</mt:if> /> <__trans phrase="muse"></label>
-              <label><input class="xfn" type="checkbox" name="romantic" value="crush" id="crush"<mt:if name="xfn_rel" like="crush"> checked="checked"</mt:if> /> <__trans phrase="crush"></label>
-              <label><input class="xfn" type="checkbox" name="romantic" value="date" id="date"<mt:if name="xfn_rel" like="date"> checked="checked"</mt:if> /> <__trans phrase="date"></label>
-              <label><input class="xfn" type="checkbox" name="romantic" value="sweetheart" id="romantic"<mt:if name="xfn_rel" like="sweetheart"> checked="checked"</mt:if> /> <__trans phrase="sweetheart"></label>
-            </span>
-          </p>
-        </div>
+           id="hidden"
+           label="<__trans_section component="LinkRoller"><__trans phrase="Hidden"></__trans_section>"
+           label_class="top-label">
+          <input type="checkbox" name="hidden" id="hidden" value="1"<mt:if name="hidden"> checked="checked"</mt:if> />
       </mtapp:setting>
+
     </div>
-</__trans_section>
 
     <mt:setvarblock name="action_buttons">
       <button

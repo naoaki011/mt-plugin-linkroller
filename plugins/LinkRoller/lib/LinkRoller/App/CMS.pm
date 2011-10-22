@@ -24,6 +24,9 @@ sub edit_asset_param {
     $param->{hidden}             = ($link->hidden || 0);
     push @{$param->{targets}}, { target_name => $_ }
         foreach qw( _self _blank _parent _top );
+    my $plugin = MT->component('LinkRoller');
+    my $scope = 'blog_id:' . $param->{blog_id};
+    $param->{show_xfn}           = $plugin->get_config_value('show_xfn', $scope);
 }
 
 sub edit_asset_src {

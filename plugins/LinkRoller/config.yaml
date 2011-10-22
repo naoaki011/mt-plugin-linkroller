@@ -1,8 +1,8 @@
 name: Link Roller
 id: LinkRoller
 version: 2.62
-description: At its heart, a powerful link manager
-author_name: naoaki onozaki, derived from Link Roller 2.6 by Arvind Satyanarayan and 3.0 by Mike Thomsen.
+description: <__trans phrase="At its heart, a powerful link manager">
+author_name: <__trans phrase="naoaki onozaki, derived from Link Roller 2.6 by Arvind Satyanarayan and 3.0 by Mike Thomsen.">
 plugin_link: https://github.com/naoaki011/mt-plugin-linkroller
 schema_version: 2.3008
 l10n_class: LinkRoller::L10N
@@ -10,6 +10,11 @@ l10n_class: LinkRoller::L10N
 object_types:
   asset.link: MT::Asset::Link
   link: MT::Asset::Link
+blog_config_template: blog_config.tmpl
+settings:
+  show_xfn:
+    scope: blog
+    default: 0
 permissions:
     blog.manage_links:
         label: Manage Links

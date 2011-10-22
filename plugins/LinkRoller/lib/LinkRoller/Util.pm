@@ -45,9 +45,14 @@ sub _internal_save {
         $q->param('description', $1);
         $dat =~ m!<\s*?meta\s*?name="(author|dc\.creator|dc\.publisher)"\s*?content="(.*?)"\s*?/?\s*?>!i;
         $q->param('link_author', $2);
-        $dat =~ m!<\s*?link\s*?rel="alternate"\s.*?href="(.*?\.(rss|xml))"\s*?/?\s*?>!i;
-        $q->param('primary_feed', $1);
+        $dat =~ m!<\s*?link\s*?rel="alternate"\s[^>]*?href="([^">]*?\.rss|[^">]*?\.rdf|[^">]*?\.atom|[^">]*?\.xml|http://feeds.feedburner[^">]+)"\s*?/?\s*?>!i;
+        my $feed = $1;
+        (my $host = $link_url) =~ s!(https?://[^/]+/).*?!$1!i;
+        $feed = $host . $1 if ($feed =~ m!^/(.*)$!i);
+        $feed = $host . $1 if ($feed =~ m!^([^/]+)$!i);
+        $q->param('primary_feed', $feed);
         $q->param('last_modified', $result->header('last_modified'));
+        $q->param('hidden', 0);
     }
     $link->blog_id($blog->id);
     $link->class('link');
@@ -74,7 +79,9 @@ sub _internal_save {
     my $primary_feed = $q->param('primary_feed') ? $q->param('primary_feed')
                                                  : $link->primary_feed || '';
     $link->primary_feed($primary_feed);
-    $link->hidden(0);
+    my $link_hidden = $q->param('hidden') ? $q->param('hidden')
+                                          : $link->hidden || 0;
+    $link->hidden($link_hidden);
     $link->save
       or return $link->errstr;
     $app->add_return_arg( id => $link->id )
