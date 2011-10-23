@@ -55,19 +55,23 @@ sub _hdlr_author {
 }
 
 sub _hdlr_rel {
-	_hdlr_link_property('rel', @_);
+	_hdlr_link_property('xfn_rel', @_);
 }
 
 sub _hdlr_target {
-	_hdlr_link_property('target', @_);
+	_hdlr_link_property('link_target', @_);
 }
 
 sub _hdlr_last_update {
-	_hdlr_link_property('update', @_);
+	_hdlr_link_property('last_modified', @_);
 }
 
 sub _hdlr_feed {
 	_hdlr_link_property('primary_feed', @_);
+}
+
+sub _hidden {
+	_hdlr_link_property('hidden', @_);
 }
 
 sub _hdlr_link_property {
