@@ -13,7 +13,7 @@ __PACKAGE__->install_properties(
         column_defs => {
             'link_target'   => 'string meta',
             'xfn_rel'       => 'string meta',
-            'link_author' => 'string meta',
+            'link_author'   => 'string meta',
             'primary_feed'  => 'string meta',
             'last_modified' => 'string meta',
             'hidden'        => 'string meta',
