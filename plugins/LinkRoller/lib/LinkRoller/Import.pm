@@ -20,7 +20,7 @@ sub import_contents {
     my $blog = $param{Blog} or return $class->error(MT->translate("No Blog"));
     my $cb = $param{Callback} || sub { };
     my $encoding = $param{Encoding};
-	
+
     if (exists $param{ImportAs}) {
     } elsif (exists $param{ParentAuthor}) {
         require MT::Auth;
@@ -48,12 +48,12 @@ sub start_import {
     my ($cb, $stream, %param) = @_;
 
     my $xml = do { local $/ = undef; <$stream>} || ''; 
-	$xml =~ s|\x0d|\x0a|g;
+    $xml =~ s|\x0d|\x0a|g;
     $xml =~ s|\x0a+|\x0a|g;
     $xml =~ s|([^>])\x0a|$1 |g;
     my $items;
-	my $class = MT->model('asset.link');
-	
+    my $class = MT->model('asset.link');
+    
     eval { $items = _get_items($xml); };
     my $e = $@ if $@;
     if ($e) {
@@ -62,25 +62,25 @@ sub start_import {
     }
 
     my $plugin = MT->component( 'LinkRoller' );
-	foreach my $item (@$items) {
+    foreach my $item (@$items) {
         my $url = $item->{html};
-		next unless $url;
-		
+        next unless $url;
+        
         my $ua = MT->new_ua;
         my $req = HTTP::Request->new('GET', $url);
         my $result = $ua->request( $req );
         my $http_status = $result->code || 0;
         if (($http_status == 200) || ($http_status == 302) || ($http_status == 304)) {
-		my $link = $class->new;
-		$link->set_values({
-			class => 'link',
-			blog_id => $param{Blog}->id,
-			created_by => $param{ImportAs}->id,
-			label => $item->{text},
-			description => $item->{desc},
-            primary_feed => $item->{xml},
-			url => $url
-		});
+            my $link = $class->new;
+            $link->set_values({
+                class => 'link',
+                blog_id => $param{Blog}->id,
+                created_by => $param{ImportAs}->id,
+                label => $item->{text},
+                description => $item->{desc},
+                primary_feed => $item->{xml},
+                url => $url
+            });
             $link->save
               or die $link->errstr;
             print $plugin->translate( "Imported '[_1]'\n", $link->label );
@@ -88,7 +88,7 @@ sub start_import {
         else {
             print $item->{text} . ' is resulted ' . $result->message . ".\n";
         }
-	}
+    }
     1;
 }
 

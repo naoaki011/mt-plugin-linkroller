@@ -64,8 +64,7 @@ sub _internal_save {
     my $link_description = $q->param('description') ? $q->param('description')
                                                     : $link->description || '';
     $link->description($link_description);
-    my $target = $q->param('link_target') ? $q->param('link_target')
-                                          : $link->link_target || '';
+    my $target = $q->param('link_target') || '';
     $link->link_target($target);
     my $xfn_rel = $q->param('xfn_rel') ? $q->param('xfn_rel')
                                        : $link->xfn_rel || '';

@@ -1,6 +1,6 @@
 name: Link Roller
 id: LinkRoller
-version: 2.62
+version: 2.63
 description: <__trans phrase="At its heart, a powerful link manager">
 author_name: <__trans phrase="naoaki onozaki, derived from Link Roller 2.6 by Arvind Satyanarayan and 3.0 by Mike Thomsen.">
 plugin_link: https://github.com/naoaki011/mt-plugin-linkroller
@@ -16,13 +16,22 @@ settings:
     scope: blog
     default: 0
 permissions:
-    blog.manage_links:
-        label: Manage Links
-        group: blog_upload
-        order: 301
+  blog.manage_links:
+    label: Manage Links
+    group: blog_upload
+    order: 301
 applications:
   cms:
     menus:
+      create:link:
+        label: Link
+        order: 320
+        mode: quickadd_link
+        dialog: quickadd_link
+        args:
+          is_dialog: 1
+        view: blog
+        permission: manage_links
       asset:link:
         label: Create Link
         order: 320
@@ -39,6 +48,7 @@ applications:
       MT::App::CMS::template_source.edit_asset:  $LinkRoller::LinkRoller::App::CMS::edit_asset_src
       MT::App::CMS::template_param.edit_asset:   $LinkRoller::LinkRoller::App::CMS::edit_asset_param
       MT::App::CMS::cms_post_save.asset:         $LinkRoller::LinkRoller::App::CMS::post_save_asset
+      #MT::App::CMS::template_source.asset_table: $LinkRoller::LinkRoller::App::CMS::asset_table_src
     import_formats:
       import_opml:
         label: Import OPML

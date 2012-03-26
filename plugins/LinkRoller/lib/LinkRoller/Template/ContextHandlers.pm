@@ -106,7 +106,6 @@ sub _hdlr_footer {
 	_hdlr_core_tag('_hdlr_pass_tokens', @_);
 }
 
-
 sub _hdlr_id {
 	_hdlr_core_tag('_hdlr_asset_id', @_);
 }

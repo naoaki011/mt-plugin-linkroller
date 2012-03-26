@@ -41,7 +41,7 @@ sub as_html {
     $text .= ' target="' . $target . '"' if $target;
     $text .= ' rel="' . $relation . '"' if $relation;
     $text .= '>' . $asset->label . '</a>';
-	return $asset->enclose($text);
+    return $asset->enclose($text);
 }
 
 sub link_target {
