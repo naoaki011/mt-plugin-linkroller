@@ -6,6 +6,8 @@ package MT::Asset::Link;
 use strict;
 use warnings;
 use base qw(MT::Asset);
+use MT::Blog;
+use MT::Website;
 use MT::Util qw( encode_html );
 
 __PACKAGE__->install_properties(
@@ -18,6 +20,7 @@ __PACKAGE__->install_properties(
             'last_modified' => 'string meta',
             'hidden'        => 'string meta',
         },
+        child_of => [ 'MT::Blog', 'MT::Website', ],
     }
 );
 
@@ -34,6 +37,7 @@ sub has_thumbnail { 0; }
 sub as_html {
     my $asset   = shift;
     my ($param) = @_;
+    $param->{enclose} = 0 unless exists $param->{enclose};
     my $target = $asset->link_target || '';
     my $relation = $asset->xfn_rel || '';
     my $text = '<a href="' . encode_html( $asset->url ) . '"'
@@ -41,7 +45,7 @@ sub as_html {
     $text .= ' target="' . $target . '"' if $target;
     $text .= ' rel="' . $relation . '"' if $relation;
     $text .= '>' . $asset->label . '</a>';
-    return $asset->enclose($text);
+    return $param->{enclose} ? $asset->enclose($text) : $text;
 }
 
 sub link_target {
