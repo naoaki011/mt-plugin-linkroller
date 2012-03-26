@@ -58,29 +58,14 @@ sub _internal_save {
     $link->class('link');
     $link_url = $link->url if (! $link_url);
     $link->url($link_url);
-    my $link_label = $q->param('label') ? $q->param('label')
-                                        : $link->label || 'NoLabel';
-    $link->label($link_label);
-    my $link_description = $q->param('description') ? $q->param('description')
-                                                    : $link->description || '';
-    $link->description($link_description);
-    my $target = $q->param('link_target') || '';
-    $link->link_target($target);
-    my $xfn_rel = $q->param('xfn_rel') ? $q->param('xfn_rel')
-                                       : $link->xfn_rel || '';
-    $link->xfn_rel($xfn_rel);
-    my $link_author = $q->param('link_author') ? $q->param('link_author')
-                                               : $link->link_author || '';
-    $link->link_author($link_author);
-    my $last_modified = $q->param('last_modified') ? $q->param('last_modified')
-                                                   : $link->last_modified || '';
-    $link->last_modified($last_modified);
-    my $primary_feed = $q->param('primary_feed') ? $q->param('primary_feed')
-                                                 : $link->primary_feed || '';
-    $link->primary_feed($primary_feed);
-    my $link_hidden = $q->param('hidden') ? $q->param('hidden')
-                                          : $link->hidden || 0;
-    $link->hidden($link_hidden);
+    $link->label($q->param('label') || 'NoLabel');
+    $link->description($q->param('description') || '');
+    $link->link_target($q->param('link_target') || '');
+    $link->xfn_rel($q->param('xfn_rel') || '');
+    $link->link_author($q->param('link_author') || '');
+    $link->last_modified($q->param('last_modified') || '');
+    $link->primary_feed($q->param('primary_feed') || '');
+    $link->hidden($q->param('hidden') || 0);
     $link->save
       or return $link->errstr;
     $app->add_return_arg( id => $link->id )
