@@ -52,8 +52,6 @@ HTML
 
     $old = <<'HTML';
 <script type="text/javascript" src="<mt:var name="static_uri">js/tc/client.js"></script>
-<script type="text/javascript">
-/* <![CDATA[ */
 HTML
     $old = quotemeta($old);
     $new = <<"HTML";
@@ -68,18 +66,20 @@ function changeTarget(s) {
         s.disabled = true;
     }
 }
+/* ]]> */
+</script>
 HTML
     $$tmpl =~ s!$old!$new!;
 
     my $old = <<'HTML';
 <img src="<mt:var name="thumbnail_url" escape="html">" width="<mt:var name="thumbnail_width" escape="html">" height="<mt:var name="thumbnail_height" escape="html">" />
-        </div>
 HTML
     $old = quotemeta($old);
     $new = <<"HTML";
 <img src="http://capture.heartrails.com/300x400/shorten?<mt:var name="url">" alt="Powered by HeartRails Capture" title="Powered by HeartRails Capture" />
 </div>
-<div class="hint">Powered by <a href="http://capture.heartrails.com/">HeartRails Capture</a></div>
+<div class="hint">
+Powered by <a href="http://capture.heartrails.com/">HeartRails Capture</a>
 HTML
     $$tmpl =~ s!$old!$new!;
 
@@ -105,14 +105,21 @@ HTML
   <ul class="metadata">
     <li class="metadata-item asset-type"><strong><__trans phrase="Type">:</strong><mt:var name="asset_class_label" escape="html"></li>
     <li class="metadata-item asset-name"><strong><__trans_section component="LinkRoller"><__trans phrase="Site Name"></__trans_section>:</strong><input type="text" name="label" id="label" class="text full" value="<mt:var name="label" escape="html">" style="width:75%;" /></li>
-    <li class="metadata-item asset-update"><strong><__trans phrase="LastUpdate">:</strong><input type="text" name="last_modified" value="<mt:var name="last_modified">" readonly="readonly" style="background-color:#eee;width:20em;" /></li>
+    <li class="metadata-item asset-update">
+      <strong><__trans phrase="LastUpdate">:</strong>
+      <input type="text" name="last_modified" value="<mt:var name="last_modified">" readonly="readonly" style="background-color:#eee;width:20em;" />
+      <mt:ignore>Update from <button>HTML</button><button>Feed</button></mt:ignore>
+    </li>
   </ul>
   <mtapp:setting
      id="url"
      label_class="top-label"
      label="<__trans phrase="URL">">
-    <a href="<mt:var name="url" escape="html">"><__trans_section component="LinkRoller"><__trans phrase="View Link"></__trans_section></a>
-    <input type="text" name="url" id="url" class="mt-edit-field text" style="width:80%;" value="<mt:var name="url" escape="html">" />
+    <a href="<mt:var name="url" escape="html">">
+      <__trans_section component="LinkRoller"><__trans phrase="View Link"></__trans_section>
+      <img alt="<__trans_section component="LinkRoller"><__trans phrase="View Link"></__trans_section>" src="<mt:var name="static_uri">images/status_icons/view.gif" />
+    </a>&nbsp;
+    <input type="text" name="url" id="url" class="mt-edit-field text" style="width:70%;" value="<mt:var name="url" escape="html">" />
   </mtapp:setting>
   <mtapp:setting
      id="link_target"
@@ -144,7 +151,9 @@ HTML
      label_class="top-label"
      label="<__trans phrase="Feed">">
     <a href="" class="icon-feed icon-left ">Open</a>
-    <input type="text" name="primary_feed" id="primary_feed" readonly="readonly" class="text" style="width:80%;background-color:#eee;" value="<mt:var name="primary_feed" escape="html">" />
+    <input type="text" name="primary_feed" id="primary_feed" readonly="readonly" class="text" style="width:70%;background-color:#eee;" value="<mt:var name="primary_feed" escape="html">" />
+    <button onclick="return false;">Update</button>
+    <div id="result"></div>
   </mtapp:setting>
 </div>
 HTML
