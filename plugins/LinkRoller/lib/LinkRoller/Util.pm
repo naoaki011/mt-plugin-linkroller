@@ -23,7 +23,8 @@ sub _internal_save {
     }
     my $plugin = MT->component( 'LinkRoller' );
 
-    my $link_url = $q->param('url');
+    my $link_url = $q->param('url')
+      or return;
     my $id = $q->param('id');
     my $class = $app->model('asset.link');
     my $link = $id
@@ -41,12 +42,9 @@ sub _internal_save {
         $q->param('label', $link_label);
         my $dat = $result->content;
         $dat = MT::I18N::encode_text($dat, undef);
-        $dat =~ m!<\s*?meta\s*?name="description"\s*?content="(.*?)"\s*?/?\s*?>!i; 
-        $q->param('description', $1);
-        $dat =~ m!<\s*?meta\s*?name="(author|dc\.creator|dc\.publisher)"\s*?content="(.*?)"\s*?/?\s*?>!i;
-        $q->param('link_author', $2);
-        $dat =~ m!<\s*?link\s*?rel="alternate"\s[^>]*?href="([^">]*?\.rss|[^">]*?\.rdf|[^">]*?\.atom|[^">]*?\.xml|http://feeds.feedburner[^">]+)"\s*?/?\s*?>!i;
-        my $feed = $1;
+        $dat =~ m!<\s*?meta\s*?name="description"\s*?content="(.*?)"\s*?/?\s*?>!i and $q->param('description', $1);
+        $dat =~ m!<\s*?meta\s*?name="(author|dc\.creator|dc\.publisher)"\s*?content="(.*?)"\s*?/?\s*?>!i and $q->param('link_author', $2);
+        $dat =~ m!<\s*?link\s*?rel="alternate"\s[^>]*?href="([^">]*?\.rss|[^">]*?\.rdf|[^">]*?\.atom|[^">]*?\.xml|http://feeds.feedburner[^">]+)"\s*?/?\s*?>!i and my $feed = $1;
         (my $host = $link_url) =~ s!(https?://[^/]+/).*?!$1!i;
         $feed = $host . $1 if ($feed =~ m!^/(.*)$!i);
         $feed = $host . $1 if ($feed =~ m!^([^/]+)$!i);
